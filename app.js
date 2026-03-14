@@ -37,53 +37,55 @@ let game = {
     history: [] // Each entry: { type: 'big'|'small'|'miss', pts, prevScore }
 };
 
-// --- DOM ELEMENTS ---
-const els = {
-    // Screens
-    setupScreen: document.getElementById('setup-screen'),
-    gameScreen: document.getElementById('game-screen'),
-    resultsScreen: document.getElementById('results-screen'),
-
-    // Setup controls
-    distanceBtns: document.querySelectorAll('[data-setting="distance"]'),
-    setupPtsSmall: document.getElementById('setup-pts-small'),
-    setupPtsBig: document.getElementById('setup-pts-big'),
-    btnStart: document.getElementById('btn-start'),
-
-    // Game scoreboard
-    timerDisplay: document.getElementById('timer-display'),
-    gameScore: document.getElementById('game-score'),
-    statBig: document.getElementById('stat-big'),
-    statSmall: document.getElementById('stat-small'),
-    statMiss: document.getElementById('stat-miss'),
-
-    // Game buttons
-    btnSmall: document.getElementById('btn-small'),
-    btnBig: document.getElementById('btn-big'),
-    btnMiss: document.getElementById('btn-miss'),
-    btnUndo: document.getElementById('btn-undo'),
-    btnEnd: document.getElementById('btn-end'),
-    ptsSmallLabel: document.getElementById('pts-small'),
-    ptsBigLabel: document.getElementById('pts-big'),
-
-    // Results screen
-    resultsConfig: document.getElementById('results-config'),
-    resultsScore: document.getElementById('results-score'),
-    resultsBig: document.getElementById('results-big'),
-    resultsSmall: document.getElementById('results-small'),
-    resultsMiss: document.getElementById('results-miss'),
-    resultsTotal: document.getElementById('results-total'),
-    resultsAccuracy: document.getElementById('results-accuracy'),
-    btnNewRound: document.getElementById('btn-new-round'),
-
-    // Confirm modal
-    confirmOverlay: document.getElementById('confirm-overlay'),
-    confirmYes: document.getElementById('confirm-yes'),
-    confirmCancel: document.getElementById('confirm-cancel')
-};
+// --- DOM ELEMENTS (populated in init) ---
+let els = {};
 
 // --- INITIALIZATION ---
 function init() {
+    els = {
+        // Screens
+        setupScreen: document.getElementById('setup-screen'),
+        gameScreen: document.getElementById('game-screen'),
+        resultsScreen: document.getElementById('results-screen'),
+
+        // Setup controls
+        distanceBtns: document.querySelectorAll('[data-setting="distance"]'),
+        setupPtsSmall: document.getElementById('setup-pts-small'),
+        setupPtsBig: document.getElementById('setup-pts-big'),
+        btnStart: document.getElementById('btn-start'),
+
+        // Game scoreboard
+        timerDisplay: document.getElementById('timer-display'),
+        gameScore: document.getElementById('game-score'),
+        statBig: document.getElementById('stat-big'),
+        statSmall: document.getElementById('stat-small'),
+        statMiss: document.getElementById('stat-miss'),
+
+        // Game buttons
+        btnSmall: document.getElementById('btn-small'),
+        btnBig: document.getElementById('btn-big'),
+        btnMiss: document.getElementById('btn-miss'),
+        btnUndo: document.getElementById('btn-undo'),
+        btnEnd: document.getElementById('btn-end'),
+        ptsSmallLabel: document.getElementById('pts-small'),
+        ptsBigLabel: document.getElementById('pts-big'),
+
+        // Results screen
+        resultsConfig: document.getElementById('results-config'),
+        resultsScore: document.getElementById('results-score'),
+        resultsBig: document.getElementById('results-big'),
+        resultsSmall: document.getElementById('results-small'),
+        resultsMiss: document.getElementById('results-miss'),
+        resultsTotal: document.getElementById('results-total'),
+        resultsAccuracy: document.getElementById('results-accuracy'),
+        btnNewRound: document.getElementById('btn-new-round'),
+
+        // Confirm modal
+        confirmOverlay: document.getElementById('confirm-overlay'),
+        confirmYes: document.getElementById('confirm-yes'),
+        confirmCancel: document.getElementById('confirm-cancel')
+    };
+
     updateSetupUI();
     setupEventListeners();
 }
