@@ -303,6 +303,16 @@ function setupEventListeners() {
 
     // Results
     els.btnNewRound.addEventListener('click', backToSetup);
+
+    // Keyboard hotkeys
+    document.addEventListener('keydown', (e) => {
+        if (!game.active && game.timeLeft > 0) return; // not in game
+        const key = e.key.toLowerCase();
+        if (key === 'p') togglePause();
+        else if (key === 'b') recordEvent('big');
+        else if (key === 's') recordEvent('small');
+        else if (key === 'm') recordEvent('miss');
+    });
 }
 
 // Start application
