@@ -1,8 +1,11 @@
 /**
- * Ping Pong Scorer Logic - Configuration First Flow
+ * Ping Pong Scorer Logic
+ * Both Small Hole and Big Hole can be scored in the same round.
+ * Distance is locked at setup; hole type is chosen per-tap during the game.
  */
 
 // --- CONFIGURATION ---
+// Edit these values if the instructor changes the scoring rules.
 const SCORING_PRESETS = {
     '5ft': {
         bigHole: 3,
@@ -20,8 +23,7 @@ const ROUND_TIME_SECONDS = 120; // 2 minutes
 
 // --- STATE MANAGEMENT ---
 let setup = {
-    distance: '5ft',
-    target: 'bigHole'
+    distance: '5ft'
 };
 
 let game = {
@@ -29,10 +31,10 @@ let game = {
     timeLeft: ROUND_TIME_SECONDS,
     timerInterval: null,
     score: 0,
-    inCount: 0,
+    bigCount: 0,
+    smallCount: 0,
     missCount: 0,
-    currentPtsForIn: 0,
-    history: []
+    history: [] // Each entry: { type: 'big'|'small'|'miss', pts, prevScore }
 };
 
 // --- DOM ELEMENTS ---
@@ -44,32 +46,34 @@ const els = {
 
     // Setup controls
     distanceBtns: document.querySelectorAll('[data-setting="distance"]'),
-    targetBtns: document.querySelectorAll('[data-setting="target"]'),
-    setupPointsPreview: document.getElementById('setup-points-preview'),
+    setupPtsSmall: document.getElementById('setup-pts-small'),
+    setupPtsBig: document.getElementById('setup-pts-big'),
     btnStart: document.getElementById('btn-start'),
 
     // Game scoreboard
     timerDisplay: document.getElementById('timer-display'),
     gameScore: document.getElementById('game-score'),
-    statIn: document.getElementById('stat-in'),
+    statBig: document.getElementById('stat-big'),
+    statSmall: document.getElementById('stat-small'),
     statMiss: document.getElementById('stat-miss'),
 
-    // Game controls
-    btnIn: document.getElementById('btn-in'),
+    // Game buttons
+    btnSmall: document.getElementById('btn-small'),
+    btnBig: document.getElementById('btn-big'),
     btnMiss: document.getElementById('btn-miss'),
     btnUndo: document.getElementById('btn-undo'),
     btnEnd: document.getElementById('btn-end'),
-    ptsInLabel: document.getElementById('pts-in'),
+    ptsSmallLabel: document.getElementById('pts-small'),
+    ptsBigLabel: document.getElementById('pts-big'),
 
     // Results screen
     resultsConfig: document.getElementById('results-config'),
     resultsScore: document.getElementById('results-score'),
-    resultsIn: document.getElementById('results-in'),
-
+    resultsBig: document.getElementById('results-big'),
+    resultsSmall: document.getElementById('results-small'),
     resultsMiss: document.getElementById('results-miss'),
     resultsTotal: document.getElementById('results-total'),
     resultsAccuracy: document.getElementById('results-accuracy'),
-    resultsPtsIn: document.getElementById('results-pts-in'),
     btnNewRound: document.getElementById('btn-new-round'),
 
     // Confirm modal
@@ -84,57 +88,48 @@ function init() {
     setupEventListeners();
 }
 
-// --- SETUP PHASE LOGIC ---
-function toggleSetup(setting, value) {
-    if (setup[setting] === value) return; // Unchanged
+// --- SETUP PHASE ---
 
-    setup[setting] = value;
+function toggleDistance(value) {
+    if (setup.distance === value) return;
+    setup.distance = value;
 
-    // Update visual toggles
-    const btns = setting === 'distance' ? els.distanceBtns : els.targetBtns;
-    btns.forEach(btn => {
-        if (btn.dataset.val === value) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
+    els.distanceBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === value);
     });
 
     updateSetupUI();
 }
 
 function updateSetupUI() {
-    // Calculate preview points
-    const pts = SCORING_PRESETS[setup.distance][setup.target];
-    els.setupPointsPreview.textContent = pts > 0 ? `+${pts}` : pts;
-
-    // Also prep the game button label
-    els.ptsInLabel.textContent = pts > 0 ? `+${pts}` : pts;
+    const preset = SCORING_PRESETS[setup.distance];
+    els.setupPtsSmall.textContent = `+${preset.smallHole}`;
+    els.setupPtsBig.textContent = `+${preset.bigHole}`;
 }
 
-// --- GAME PHASE LOGIC ---
+// --- GAME PHASE ---
 
 function startGame() {
+    const preset = SCORING_PRESETS[setup.distance];
+
     game.active = true;
     game.timeLeft = ROUND_TIME_SECONDS;
     game.score = 0;
-    game.inCount = 0;
+    game.bigCount = 0;
+    game.smallCount = 0;
     game.missCount = 0;
     game.history = [];
-    game.currentPtsForIn = SCORING_PRESETS[setup.distance][setup.target];
 
-    // UI Resets
+    // Set button labels to current preset values
+    els.ptsBigLabel.textContent = `+${preset.bigHole}`;
+    els.ptsSmallLabel.textContent = `+${preset.smallHole}`;
+
     els.timerDisplay.classList.remove('warning');
     updateGameUI();
     formatTimer(game.timeLeft);
 
-    // Switch screens
-    els.setupScreen.classList.remove('view-active');
-    els.setupScreen.classList.add('view-hidden');
-    els.gameScreen.classList.remove('view-hidden');
-    els.gameScreen.classList.add('view-active');
+    switchScreen(els.setupScreen, els.gameScreen);
 
-    // Start countdown
     clearInterval(game.timerInterval);
     game.timerInterval = setInterval(gameTick, 1000);
 }
@@ -146,31 +141,31 @@ function stopGame() {
 }
 
 function showResults() {
-    const total = game.inCount + game.missCount;
-    const accuracy = total > 0 ? Math.round((game.inCount / total) * 100) : 0;
+    const total = game.bigCount + game.smallCount + game.missCount;
+    const inCount = game.bigCount + game.smallCount;
+    const accuracy = total > 0 ? Math.round((inCount / total) * 100) : 0;
     const distanceLabel = setup.distance === '5ft' ? '5 ft' : '7 ft';
-    const targetLabel = setup.target === 'bigHole' ? 'Big Hole' : 'Small Hole';
 
-    els.resultsConfig.textContent = `${distanceLabel} · ${targetLabel}`;
+    els.resultsConfig.textContent = distanceLabel;
     els.resultsScore.textContent = game.score;
-    els.resultsIn.textContent = game.inCount;
+    els.resultsBig.textContent = game.bigCount;
+    els.resultsSmall.textContent = game.smallCount;
     els.resultsMiss.textContent = game.missCount;
     els.resultsTotal.textContent = total;
     els.resultsAccuracy.textContent = `${accuracy}%`;
-    els.resultsPtsIn.textContent = `+${game.currentPtsForIn}`;
 
-    // Switch from game → results
-    els.gameScreen.classList.remove('view-active');
-    els.gameScreen.classList.add('view-hidden');
-    els.resultsScreen.classList.remove('view-hidden');
-    els.resultsScreen.classList.add('view-active');
+    switchScreen(els.gameScreen, els.resultsScreen);
 }
 
 function backToSetup() {
-    els.resultsScreen.classList.remove('view-active');
-    els.resultsScreen.classList.add('view-hidden');
-    els.setupScreen.classList.remove('view-hidden');
-    els.setupScreen.classList.add('view-active');
+    switchScreen(els.resultsScreen, els.setupScreen);
+}
+
+function switchScreen(from, to) {
+    from.classList.remove('view-active');
+    from.classList.add('view-hidden');
+    to.classList.remove('view-hidden');
+    to.classList.add('view-active');
 }
 
 function gameTick() {
@@ -178,15 +173,12 @@ function gameTick() {
         game.timeLeft--;
         formatTimer(game.timeLeft);
 
-        // Add visual warning for last 10 seconds
         if (game.timeLeft <= 10 && !els.timerDisplay.classList.contains('warning')) {
             els.timerDisplay.classList.add('warning');
         }
     } else {
-        // Time's up
         game.active = false;
         clearInterval(game.timerInterval);
-
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
         showResults();
     }
@@ -198,20 +190,23 @@ function formatTimer(seconds) {
     els.timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+// type: 'big' | 'small' | 'miss'
 function recordEvent(type) {
-    if (!game.active && game.timeLeft <= 0) return; // Prevent logging if game is completely over but not explicitly closed
+    if (!game.active && game.timeLeft <= 0) return;
 
     if (navigator.vibrate) navigator.vibrate(40);
 
-    const ptsAdded = type === 'in' ? game.currentPtsForIn : -1;
+    const preset = SCORING_PRESETS[setup.distance];
+    let pts;
+    if (type === 'big') pts = preset.bigHole;
+    else if (type === 'small') pts = preset.smallHole;
+    else pts = preset.miss;
 
-    game.history.push({
-        type: type,
-        prevScore: game.score
-    });
+    game.history.push({ type, pts, prevScore: game.score });
 
-    game.score += ptsAdded;
-    if (type === 'in') game.inCount++;
+    game.score += pts;
+    if (type === 'big') game.bigCount++;
+    else if (type === 'small') game.smallCount++;
     else game.missCount++;
 
     updateGameUI();
@@ -221,10 +216,10 @@ function undoLast() {
     if (game.history.length === 0) return;
     if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
 
-    const lastEvent = game.history.pop();
-
-    game.score = lastEvent.prevScore;
-    if (lastEvent.type === 'in') game.inCount--;
+    const last = game.history.pop();
+    game.score = last.prevScore;
+    if (last.type === 'big') game.bigCount--;
+    else if (last.type === 'small') game.smallCount--;
     else game.missCount--;
 
     updateGameUI();
@@ -232,9 +227,9 @@ function undoLast() {
 
 function updateGameUI() {
     els.gameScore.textContent = game.score;
-    els.statIn.textContent = game.inCount;
+    els.statBig.textContent = game.bigCount;
+    els.statSmall.textContent = game.smallCount;
     els.statMiss.textContent = game.missCount;
-
     els.btnUndo.disabled = game.history.length === 0;
 }
 
@@ -244,59 +239,53 @@ let lastTapTime = 0;
 function handleTap(e, callback) {
     e.preventDefault();
     const now = Date.now();
-    if (now - lastTapTime < 150) return; // Debounce slightly
+    if (now - lastTapTime < 150) return;
     lastTapTime = now;
 
-    // Scale animation
     const el = e.currentTarget;
     const isCircle = el.classList.contains('circle-btn');
     el.style.transform = `scale(${isCircle ? 0.94 : 0.96})`;
-    setTimeout(() => {
-        if (el) el.style.transform = 'scale(1)';
-    }, 100);
+    setTimeout(() => { if (el) el.style.transform = 'scale(1)'; }, 100);
 
     callback();
 }
 
 function setupEventListeners() {
-    // Setup Screen Toggles
+    // Setup
     els.distanceBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => toggleSetup('distance', e.target.dataset.val));
+        btn.addEventListener('click', (e) => toggleDistance(e.target.dataset.val));
     });
-
-    els.targetBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => toggleSetup('target', e.target.dataset.val));
-    });
-
     els.btnStart.addEventListener('click', startGame);
 
-    // Game Controls
+    // Game — use pointerdown for snappy mobile taps
     let tapEvent = window.PointerEvent ? 'pointerdown' : 'touchstart';
 
-    els.btnIn.addEventListener(tapEvent, (e) => handleTap(e, () => recordEvent('in')));
+    els.btnSmall.addEventListener(tapEvent, (e) => handleTap(e, () => recordEvent('small')));
+    els.btnBig.addEventListener(tapEvent, (e) => handleTap(e, () => recordEvent('big')));
     els.btnMiss.addEventListener(tapEvent, (e) => handleTap(e, () => recordEvent('miss')));
 
-    // Fallback for desktop clicks
+    // Desktop fallback
     if (tapEvent !== 'click') {
-        els.btnIn.addEventListener('click', (e) => { e.preventDefault(); if (Date.now() - lastTapTime > 300) recordEvent('in'); });
+        els.btnSmall.addEventListener('click', (e) => { e.preventDefault(); if (Date.now() - lastTapTime > 300) recordEvent('small'); });
+        els.btnBig.addEventListener('click', (e) => { e.preventDefault(); if (Date.now() - lastTapTime > 300) recordEvent('big'); });
         els.btnMiss.addEventListener('click', (e) => { e.preventDefault(); if (Date.now() - lastTapTime > 300) recordEvent('miss'); });
     }
 
     els.btnUndo.addEventListener('click', undoLast);
+
+    // End round — custom confirm modal
     els.btnEnd.addEventListener('click', () => {
         els.confirmOverlay.classList.remove('hidden');
     });
-
     els.confirmYes.addEventListener('click', () => {
         els.confirmOverlay.classList.add('hidden');
         stopGame();
     });
-
     els.confirmCancel.addEventListener('click', () => {
         els.confirmOverlay.classList.add('hidden');
     });
 
-    // Results screen
+    // Results
     els.btnNewRound.addEventListener('click', backToSetup);
 }
 

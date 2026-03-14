@@ -267,14 +267,12 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 32px;
-    padding-bottom: 16px;
+    gap: 16px;
+    padding-bottom: 8px;
 }
 
-/* Big IN circle */
+/* Circle buttons (shared) */
 .circle-btn {
-    width: 240px;
-    height: 240px;
     border-radius: 50%;
     border: none;
     display: flex;
@@ -282,13 +280,8 @@ body {
     justify-content: center;
     align-items: center;
     color: white;
-    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4), inset 0 4px 0 rgba(255, 255, 255, 0.2);
     cursor: pointer;
     transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s;
-}
-
-.success-btn {
-    background: linear-gradient(135deg, var(--accent-success), #059669);
 }
 
 .circle-btn:active {
@@ -296,20 +289,58 @@ body {
     filter: brightness(0.9);
 }
 
-.circle-btn .btn-name {
-    font-size: 4rem;
+/* Small Hole circle — smaller, on top */
+.circle-small {
+    width: 140px;
+    height: 140px;
+    box-shadow: 0 6px 24px rgba(59, 130, 246, 0.4), inset 0 3px 0 rgba(255, 255, 255, 0.2);
+}
+
+.circle-small .btn-name {
+    font-size: 1.6rem;
+    font-weight: 900;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    line-height: 1.1;
+}
+
+.circle-small .btn-pts {
+    font-size: 1rem;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 10px;
+    border-radius: 14px;
+    margin-top: 4px;
+}
+
+.primary-circle {
+    background: linear-gradient(135deg, var(--accent-primary), #2563EB);
+}
+
+/* Big Hole circle — larger, below */
+.circle-big {
+    width: 200px;
+    height: 200px;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4), inset 0 4px 0 rgba(255, 255, 255, 0.2);
+}
+
+.success-btn {
+    background: linear-gradient(135deg, var(--accent-success), #059669);
+}
+
+.circle-big .btn-name {
+    font-size: 2.8rem;
     font-weight: 900;
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     line-height: 1.1;
 }
 
-.circle-btn .btn-pts {
-    font-size: 1.5rem;
+.circle-big .btn-pts {
+    font-size: 1.3rem;
     font-weight: 700;
     background: rgba(0, 0, 0, 0.2);
-    padding: 4px 16px;
-    border-radius: 20px;
-    margin-top: 8px;
+    padding: 4px 14px;
+    border-radius: 18px;
+    margin-top: 6px;
 }
 
 /* Bottom Miss button */
@@ -478,6 +509,10 @@ body {
 
 .success-color {
     color: var(--accent-success);
+}
+
+.primary-color {
+    color: var(--accent-primary);
 }
 
 .danger-color {

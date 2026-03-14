@@ -35,17 +35,10 @@
                     </div>
                 </div>
 
-                <div class="setup-group">
-                    <h3>Target</h3>
-                    <div class="toggle-group" id="target-group">
-                        <button class="toggle-btn active" data-setting="target" data-val="bigHole">Big Hole</button>
-                        <button class="toggle-btn" data-setting="target" data-val="smallHole">Small Hole</button>
-                    </div>
-                </div>
-
                 <div class="summary-box">
-                    <p>Points for making it in: <span id="setup-points-preview" class="highlight">+3</span></p>
-                    <p>Points for miss: <span class="highlight-danger">-1</span></p>
+                    <p>Small Hole: <span id="setup-pts-small" class="highlight">+6</span></p>
+                    <p>Big Hole: <span id="setup-pts-big" class="highlight">+3</span></p>
+                    <p>Miss: <span class="highlight-danger">-1</span></p>
                 </div>
             </div>
 
@@ -66,8 +59,10 @@
                         <div id="game-score" class="score-value">0</div>
                     </div>
                     <div class="score-stats">
-                        <div class="stat"><span class="stat-name">In</span> <span id="stat-in" class="stat-num">0</span>
-                        </div>
+                        <div class="stat"><span class="stat-name">Big</span> <span id="stat-big"
+                                class="stat-num">0</span></div>
+                        <div class="stat"><span class="stat-name">Small</span> <span id="stat-small"
+                                class="stat-num">0</span></div>
                         <div class="stat"><span class="stat-name">Miss</span> <span id="stat-miss"
                                 class="stat-num">0</span></div>
                     </div>
@@ -75,13 +70,19 @@
             </header>
 
             <section class="game-controls">
-                <!-- Huge Circle for IN -->
-                <button id="btn-in" class="circle-btn success-btn pulse-on-tap">
-                    <span class="btn-name">IN</span>
-                    <span class="btn-pts" id="pts-in">+3</span>
+                <!-- Small Hole circle (smaller, on top) -->
+                <button id="btn-small" class="circle-btn circle-small primary-circle pulse-on-tap">
+                    <span class="btn-name">Small</span>
+                    <span class="btn-pts" id="pts-small">+6</span>
                 </button>
 
-                <!-- Smaller Rectangle for MISS -->
+                <!-- Big Hole circle (bigger, below) -->
+                <button id="btn-big" class="circle-btn circle-big success-btn pulse-on-tap">
+                    <span class="btn-name">Big</span>
+                    <span class="btn-pts" id="pts-big">+3</span>
+                </button>
+
+                <!-- Miss button at very bottom -->
                 <div class="miss-container">
                     <button id="btn-miss" class="rect-btn danger-btn pulse-on-tap">
                         <span class="btn-name">MISS</span>
@@ -128,8 +129,12 @@
 
                 <div class="results-stats">
                     <div class="results-stat-row">
-                        <span class="results-stat-name">Balls In</span>
-                        <span id="results-in" class="results-stat-val success-color">0</span>
+                        <span class="results-stat-name">Big Hole</span>
+                        <span id="results-big" class="results-stat-val success-color">0</span>
+                    </div>
+                    <div class="results-stat-row">
+                        <span class="results-stat-name">Small Hole</span>
+                        <span id="results-small" class="results-stat-val primary-color">0</span>
                     </div>
                     <div class="results-stat-row">
                         <span class="results-stat-name">Misses</span>
@@ -142,10 +147,6 @@
                     <div class="results-stat-row">
                         <span class="results-stat-name">Accuracy</span>
                         <span id="results-accuracy" class="results-stat-val">0%</span>
-                    </div>
-                    <div class="results-stat-row">
-                        <span class="results-stat-name">Points per In</span>
-                        <span id="results-pts-in" class="results-stat-val">0</span>
                     </div>
                 </div>
             </div>
