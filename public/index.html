@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ME102 Class Scorer</title>
+    <meta name="theme-color" content="#121212">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- SETUP SCREEN -->
+        <div id="setup-screen" class="screen view-active">
+            <header class="setup-header">
+                <div class="badge badge-blue">ME102 · All Teams</div>
+                <h1 class="app-title">Round Setup</h1>
+                <p class="subtitle">Standard class scoring</p>
+            </header>
+
+            <div class="setup-content">
+                <div class="setup-group">
+                    <h3>Distance</h3>
+                    <div class="toggle-group" id="distance-group">
+                        <button class="toggle-btn active" data-setting="distance" data-val="5ft">5 ft</button>
+                        <button class="toggle-btn" data-setting="distance" data-val="7ft">7 ft</button>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <p>Small Hole: <span id="setup-pts-small" class="highlight">+4</span></p>
+                    <p>Big Hole: <span id="setup-pts-big" class="highlight">+2</span></p>
+                    <p>Miss: <span class="highlight-danger">-1</span></p>
+                </div>
+            </div>
+
+            <footer class="setup-footer">
+                <button id="btn-start" class="primary-btn pulse-on-tap">Start 2:00 Round</button>
+                <a href="../" class="back-link">← Back to version picker</a>
+            </footer>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="screen view-hidden">
+            <header class="game-header">
+                <div class="timer-container">
+                    <div id="timer-display" class="timer">02:00</div>
+                </div>
+                <div class="scoreboard-mini">
+                    <div class="score-main">
+                        <span class="score-label">SCORE</span>
+                        <div id="game-score" class="score-value">0</div>
+                    </div>
+                    <div class="score-stats">
+                        <div class="stat"><span class="stat-name">Big</span> <span id="stat-big"
+                                class="stat-num">0</span></div>
+                        <div class="stat"><span class="stat-name">Small</span> <span id="stat-small"
+                                class="stat-num">0</span></div>
+                        <div class="stat"><span class="stat-name">Miss</span> <span id="stat-miss"
+                                class="stat-num">0</span></div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="game-controls">
+                <button id="btn-small" class="circle-btn circle-small primary-circle pulse-on-tap">
+                    <span class="btn-name">Small</span>
+                    <span class="btn-pts" id="pts-small">+4</span>
+                </button>
+                <button id="btn-big" class="circle-btn circle-big success-btn pulse-on-tap">
+                    <span class="btn-name">Big</span>
+                    <span class="btn-pts" id="pts-big">+2</span>
+                </button>
+                <div class="miss-container">
+                    <button id="btn-miss" class="rect-btn danger-btn pulse-on-tap">
+                        <span class="btn-name">MISS</span>
+                        <span class="btn-pts">-1</span>
+                    </button>
+                </div>
+            </section>
+
+            <footer class="game-footer footer-actions">
+                <button id="btn-undo" class="action-btn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7v6h6" />
+                        <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13" />
+                    </svg>
+                    Undo
+                </button>
+                <button id="btn-end" class="action-btn danger-text">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                    </svg>
+                    End Round
+                </button>
+            </footer>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-screen" class="screen view-hidden">
+            <header class="results-header">
+                <h1 class="results-title">Round Over</h1>
+                <p class="results-subtitle" id="results-config">5 ft</p>
+            </header>
+            <div class="results-card">
+                <div class="results-score-block">
+                    <span class="results-score-label">FINAL SCORE</span>
+                    <div id="results-score" class="results-score-value">0</div>
+                </div>
+                <div class="results-divider"></div>
+                <div class="results-stats">
+                    <div class="results-stat-row"><span class="results-stat-name">Big Hole</span><span id="results-big"
+                            class="results-stat-val success-color">0</span></div>
+                    <div class="results-stat-row"><span class="results-stat-name">Small Hole</span><span
+                            id="results-small" class="results-stat-val primary-color">0</span></div>
+                    <div class="results-stat-row"><span class="results-stat-name">Misses</span><span id="results-miss"
+                            class="results-stat-val danger-color">0</span></div>
+                    <div class="results-stat-row"><span class="results-stat-name">Total Balls</span><span
+                            id="results-total" class="results-stat-val">0</span></div>
+                    <div class="results-stat-row"><span class="results-stat-name">Accuracy</span><span
+                            id="results-accuracy" class="results-stat-val">0%</span></div>
+                </div>
+            </div>
+            <footer class="results-footer">
+                <button id="btn-new-round" class="primary-btn">New Round</button>
+            </footer>
+        </div>
+
+        <!-- CONFIRM MODAL -->
+        <div id="confirm-overlay" class="confirm-overlay hidden">
+            <div class="confirm-card">
+                <p class="confirm-msg">End current round?</p>
+                <div class="confirm-actions">
+                    <button id="confirm-cancel" class="confirm-btn confirm-cancel">Cancel</button>
+                    <button id="confirm-yes" class="confirm-btn confirm-yes">End Round</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
