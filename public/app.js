@@ -28,13 +28,14 @@ let setup = {
 
 let game = {
     active: false,
+    paused: false,
     timeLeft: ROUND_TIME_SECONDS,
     timerInterval: null,
     score: 0,
     bigCount: 0,
     smallCount: 0,
     missCount: 0,
-    history: [] // Each entry: { type: 'big'|'small'|'miss', pts, prevScore }
+    history: []
 };
 
 // --- DOM ELEMENTS (populated in init) ---
@@ -67,6 +68,7 @@ function init() {
         btnMiss: document.getElementById('btn-miss'),
         btnUndo: document.getElementById('btn-undo'),
         btnEnd: document.getElementById('btn-end'),
+        btnPause: document.getElementById('btn-pause'),
         ptsSmallLabel: document.getElementById('pts-small'),
         ptsBigLabel: document.getElementById('pts-big'),
 
@@ -134,6 +136,9 @@ function startGame() {
 
     clearInterval(game.timerInterval);
     game.timerInterval = setInterval(gameTick, 1000);
+
+    game.paused = false;
+    els.btnPause.textContent = '⏸ Pause';
 }
 
 function stopGame() {
@@ -171,6 +176,7 @@ function switchScreen(from, to) {
 }
 
 function gameTick() {
+    if (game.paused) return;
     if (game.timeLeft > 0) {
         game.timeLeft--;
         formatTimer(game.timeLeft);
@@ -184,6 +190,12 @@ function gameTick() {
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
         showResults();
     }
+}
+
+function togglePause() {
+    game.paused = !game.paused;
+    els.btnPause.textContent = game.paused ? '▶ Resume' : '⏸ Pause';
+    els.timerDisplay.classList.toggle('paused', game.paused);
 }
 
 function formatTimer(seconds) {
@@ -274,6 +286,7 @@ function setupEventListeners() {
     }
 
     els.btnUndo.addEventListener('click', undoLast);
+    els.btnPause.addEventListener('click', togglePause);
 
     // End round — custom confirm modal
     els.btnEnd.addEventListener('click', () => {
